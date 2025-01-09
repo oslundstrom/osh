@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define BUFSIZE 1024
 #define EXIT_FAILIURE -2
+
+char *read_line(void);
 
 int main(int argc, char **argv)
 {
@@ -20,11 +23,13 @@ int loop(void)
     do {
         printf("# ");
         line = read_line();
-        args = split_line(line);
-        status = execute(args);
+        printf("ECHOING: %s\n");
+        status = 1;
+        // args = split_line(line);
+        // status = execute(args);
         
         free(line);
-        free(args);
+        // free(args);
     } while (status);
 }
 
@@ -54,7 +59,7 @@ char *read_line(void)
         position++;
 
         if (position >= bufsize) {
-            bufsize += BUF;
+            bufsize += BUFSIZE;
             buffer = realloc(buffer, bufsize);
             if (!buffer) {
                 fprintf(stderr, "osh: allocation error\n");
@@ -86,11 +91,12 @@ char **split_line(char *line)
             tokens = realloc(tokens, bufsize * sizeof(char*));
             if (!tokens) {
                 fprintf(stderr, "osh: allocation error\n");
-                exit(EXIT_FAILURE);
+                exit(EXIT_FAILIURE);
             }
         }
         
-        token = strtok(NULL, TOK_DELIM);
+        token = strtok(NULL, TOK_DELIM); // By having NULL as first arg, we continue from the end of last token
     }
-    
+    tokens[position] = NULL; // Sentinel termination value of the pointer array
+    return tokens;
 }
