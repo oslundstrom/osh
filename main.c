@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #define BUFSIZE 1024
 #define EXIT_FAILIURE -2
 
 char *read_line(void);
+char **split_line(char *);
+int launch(char **args);
 
 int main(int argc, char **argv)
 {
@@ -23,13 +27,12 @@ int loop(void)
     do {
         printf("# ");
         line = read_line();
-        printf("ECHOING: %s\n");
-        status = 1;
-        // args = split_line(line);
-        // status = execute(args);
+        printf("ECHOING: %s\n", line);
+        args = split_line(line);
+        status = launch(args);
         
         free(line);
-        // free(args);
+        free(args);
     } while (status);
 }
 
@@ -99,4 +102,27 @@ char **split_line(char *line)
     }
     tokens[position] = NULL; // Sentinel termination value of the pointer array
     return tokens;
+}
+
+int launch(char **args)
+{
+    pid_t pid, wpid;
+    int status;
+    
+    pid = fork();
+    if (pid == 0) {
+        if (execvp(args[0], args) == -1) {
+            perror("osh");
+        }
+        exit(EXIT_FAILIURE);
+    } else if (pid < 0) {
+        // Error forking
+        perror("osh");
+    } else {
+        do {
+            wpid = waitpid(pid, &status, WUNTRACED);
+        } while(!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    
+    return 1;
 }
