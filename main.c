@@ -4,21 +4,18 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "osh.h"
 #define BUFSIZE 1024
 #define EXIT_FAILIURE -2
 
-char *read_line(void);
-char **split_line(char *);
-int launch(char **);
-int loop(void);
-int osh_execute(char **);
-
+#ifndef TESTING
 int main(int argc, char **argv)
 {
     loop();
     
     return 0;
 }
+#endif
 
 int loop(void)
 {
@@ -29,7 +26,7 @@ int loop(void)
     do {
         printf("# ");
         line = read_line();
-        args = split_line(line);
+        args = split_to_args(line);
         status = osh_execute(args);
         
         free(line);
@@ -74,7 +71,7 @@ char *read_line(void)
 
 #define TOK_BUFSIZE 64
 #define TOK_DELIM " \t\r\n\a"
-char **split_line(char *line)
+char **split_to_args(char *line)
 {
     int bufsize = TOK_BUFSIZE, position = 0;
     char **tokens = malloc(bufsize * sizeof(char*));
@@ -85,7 +82,7 @@ char **split_line(char *line)
         exit(EXIT_FAILIURE);
     }
     
-    token = strtok(line, TOK_DELIM);
+    token = strtok(line,TOK_DELIM);
     while (token != NULL) {
         tokens[position] = token;
         position++;
@@ -103,6 +100,57 @@ char **split_line(char *line)
     }
     tokens[position] = NULL; // Sentinel termination value of the pointer array
     return tokens;
+}
+
+#define CMD_BUFSIZE 64
+#define CMD_DELIM "&&,||,|,;"
+char **split_to_cmds(char *line)
+{
+    int bufsize = CMD_BUFSIZE, position = 0;
+    char **cmds = malloc(bufsize * sizeof(char *));
+    char *cmd;
+    
+    if (!cmds) {
+        fprintf(stderr, "osh: allocation error\n");
+    }
+    
+
+}
+
+char * strsplit(char *s, const char *delim)
+{
+    static char *olds;
+    return strsplit_r(s, delim, &olds);
+}
+
+/* Split string into tokens that are seperated by the full 
+   delim string */
+char * strsplit_r(char *s, const char *delim, char **save_ptr)
+{
+    char *end, *loc;
+
+    if (s == NULL)
+        s = *save_ptr;
+
+    if (*s == '\0')
+    {
+        *save_ptr = s;
+        return NULL;
+    }
+
+    // I want to use strstr here i think
+    loc = strstr(s, delim);
+    if (!(loc == NULL))
+    {
+        // Terminate the token, and push forward the save_ptr past the delim
+        *loc = '\0';
+        *save_ptr = loc + strlen(delim);
+        return s;
+    }
+
+    // Delimiter was not found, the whole string is returned
+    *save_ptr = s + strlen(s);
+    return s;
 }
 
 int launch(char **args)
