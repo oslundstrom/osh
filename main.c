@@ -9,8 +9,9 @@
 
 char *read_line(void);
 char **split_line(char *);
-int launch(char **args);
+int launch(char **);
 int loop(void);
+int osh_execute(char **);
 
 int main(int argc, char **argv)
 {
@@ -29,7 +30,7 @@ int loop(void)
         printf("# ");
         line = read_line();
         args = split_line(line);
-        status = launch(args);
+        status = osh_execute(args);
         
         free(line);
         free(args);
@@ -178,4 +179,21 @@ int osh_help(char **args)
 int osh_exit(char **args)
 {
     return 0;
+}
+
+int osh_execute(char **args)
+{
+    int i;
+
+    if (args[0] == NULL) {
+        return 1;
+    }
+    
+    for (i = 0; i < osh_num_builtins(); i++) {
+        if (strcmp(args[0], builtin_str[i]) == 0) {
+            return (*builtin_func[i])(args);
+        }
+    }
+    
+    return launch(args);
 }
