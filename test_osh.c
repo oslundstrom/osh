@@ -32,14 +32,18 @@ void test_strsplit(void) {
 }
 
 void test_strsplit_multi(void) {
-    char str2[] = "sleep 2 || echo hej";
+    char str2[] = "sleep 2 || echo hej&& echo nej| grep -v ost";
     char *token;
 
     token = strsplit(str2, "&&,||");
     TEST_ASSERT_EQUAL_STRING("sleep 2 ", token);
     token = strsplit(NULL, "&&,||");
     TEST_ASSERT_EQUAL_STRING(" echo hej", token);
-    token = strsplit(NULL, "&&,||");
+    token = strsplit(NULL, "&&,||,|");
+    TEST_ASSERT_EQUAL_STRING(" echo nej", token);
+    token = strsplit(NULL, "&&,||,|");
+    TEST_ASSERT_EQUAL_STRING(" grep -v ost", token);
+    token = strsplit(NULL, "&&,||,|");
     TEST_ASSERT_EQUAL_STRING(NULL, token);
 }
 
