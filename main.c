@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -6,7 +7,6 @@
 
 #include "osh.h"
 #define BUFSIZE 1024
-#define EXIT_FAILIURE -2
 
 #ifndef TESTING
 int main(int argc, char **argv)
@@ -79,7 +79,7 @@ char *read_line(void)
     if (!buffer) 
     {
         fprintf(stderr, "osh: allocation error\n");
-        exit(EXIT_FAILIURE);
+        exit(EXIT_FAILURE);
     }
 
     while(1) 
@@ -113,7 +113,7 @@ char **split_tokens(char *line, char *delim)
     
     if (!tokens) {
         fprintf(stderr, "osh: allocation error\n");
-        exit(EXIT_FAILIURE);
+        exit(EXIT_FAILURE);
     }
     
     token = strtok(line, delim);
@@ -126,7 +126,7 @@ char **split_tokens(char *line, char *delim)
             tokens = realloc(tokens, bufsize * sizeof(char*));
             if (!tokens) {
                 fprintf(stderr, "osh: allocation error\n");
-                exit(EXIT_FAILIURE);
+                exit(EXIT_FAILURE);
             }
         }
         
@@ -166,7 +166,7 @@ char **split_to_cmds(char *line)
             cmds = realloc(cmds, bufsize * sizeof(char*));
             if (!cmds) {
                 fprintf(stderr, "osh: allocation error\n");
-                exit(EXIT_FAILIURE);
+                exit(EXIT_FAILURE);
             }
         }
         
@@ -247,17 +247,28 @@ int launch(char **args)
     
     pid = fork();
     if (pid == 0) {
+        // Child process
         if (execvp(args[0], args) == -1) {
-            perror("osh");
+            // Exit with errno value
+            exit(errno);
         }
-        exit(EXIT_FAILIURE);
+        exit(EXIT_SUCCESS);
     } else if (pid < 0) {
-        // Error forking
         perror("osh");
     } else {
         do {
             wpid = waitpid(pid, &status, WUNTRACED);
-        } while(!WIFEXITED(status) && !WIFSIGNALED(status));
+            if (wpid == -1) {
+                perror("waitpid");
+                return -1;
+            }
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+        
+        if (WIFEXITED(status)) {
+            // Get child's exit code (which we set to errno)
+            int child_errno = WEXITSTATUS(status);
+            fprintf(stderr, "Child errno: %d (%s)\n", child_errno, strerror(child_errno));
+        }
     }
     
     return 1;
