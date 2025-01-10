@@ -38,7 +38,7 @@ void test_strsplit_multi(void) {
     token = strsplit(str2, "&&,||");
     TEST_ASSERT_EQUAL_STRING("sleep 2 ", token);
     token = strsplit(NULL, "&&,||");
-    TEST_ASSERT_EQUAL_STRING("echo hej", token);
+    TEST_ASSERT_EQUAL_STRING(" echo hej", token);
     token = strsplit(NULL, "&&,||,|");
     TEST_ASSERT_EQUAL_STRING(" echo nej", token);
     token = strsplit(NULL, "&&,||,|");
