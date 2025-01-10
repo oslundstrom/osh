@@ -17,16 +17,6 @@ int main(int argc, char **argv)
 }
 #endif
 
-void free_arr(char **arr)
-{
-    if (!arr)
-        return;
-        
-    for (int i = 0; arr[i] != NULL; i++)
-        free(arr[i]);
-    free(arr);
-}
-
 int loop(void)
 {
     char *line;
@@ -64,7 +54,7 @@ int loop(void)
         free(line);
         free(commands);
 
-    } while (status);
+    } while (1);
 
     return EXIT_SUCCESS;
 }
@@ -142,9 +132,8 @@ char **split_to_args(char *line)
     return split_tokens(line, ARGS_DELIM);
 }
 
-
 #define CMD_BUFSIZE 64
-#define CMD_DELIM "&&,||,|,;"
+#define CMD_DELIM "&&,||,;"
 char **split_to_cmds(char *line)
 {
     int bufsize = CMD_BUFSIZE, position = 0;
@@ -267,7 +256,7 @@ int launch(char **args)
         if (WIFEXITED(status)) {
             // Get child's exit code (which we set to errno)
             int child_errno = WEXITSTATUS(status);
-            fprintf(stderr, "Child errno: %d (%s)\n", child_errno, strerror(child_errno));
+            // fprintf(stderr, "Child errno: %d (%s)\n", child_errno, strerror(child_errno));
         }
     }
     
@@ -324,11 +313,13 @@ int osh_help(char **args)
 
 int osh_exit(char **args)
 {
-    return 0;
+    exit(0);
 }
 
 int osh_execute(char **args)
 {
+    /*
+    Returns the exitcode of any external commands*/
     int i;
 
     if (args[0] == NULL) {
