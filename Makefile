@@ -12,7 +12,7 @@ test_runner: CFLAGS += -DTESTING
 test_runner: test_osh.c main.c unity/src/unity.c | unity
 	$(CC) $(CFLAGS) $^ -o test_runner
 
-test: test_runner
+check: test_runner
 	./$<
 
 unity:
