@@ -2,7 +2,7 @@
 
 This is the O(h)Sh(it!) shell, a simple shell that can run commands and has three builtin commands.
 
-![Build](https://img.shields.io/endpoint?url=https%3A%2F%2Fgithub.com%2Foslundstrom%2Fosh%2Factions%3Fquery%3Dworkflow%3Aci)
+[![Status](https://github.com/oslundstrom/osh/actions/workflows/ci.yml/badge.svg)](https://github.com/oslundstrom/osh/actions/wrkflows/ci.yaml)
 
 ## Getting started
 
