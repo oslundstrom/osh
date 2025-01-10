@@ -70,8 +70,7 @@ char *read_line(void)
 }
 
 #define TOK_BUFSIZE 64
-#define TOK_DELIM " \t\r\n\a"
-char **split_to_args(char *line)
+char **split_tokens(char *line, char *delim)
 {
     int bufsize = TOK_BUFSIZE, position = 0;
     char **tokens = malloc(bufsize * sizeof(char*));
@@ -82,7 +81,7 @@ char **split_to_args(char *line)
         exit(EXIT_FAILIURE);
     }
     
-    token = strtok(line,TOK_DELIM);
+    token = strtok(line, delim);
     while (token != NULL) {
         tokens[position] = token;
         position++;
@@ -96,11 +95,18 @@ char **split_to_args(char *line)
             }
         }
         
-        token = strtok(NULL, TOK_DELIM); // By having NULL as first arg, we continue from the end of last token
+        token = strtok(NULL, delim); // By having NULL as first arg, we continue from the end of last token
     }
     tokens[position] = NULL; // Sentinel termination value of the pointer array
     return tokens;
 }
+
+#define ARGS_DELIM " \t\r\n\a"
+char **split_to_args(char *line)
+{
+    return split_tokens(line, ARGS_DELIM);
+}
+
 
 #define CMD_BUFSIZE 64
 #define CMD_DELIM "&&,||,|,;"
@@ -125,21 +131,45 @@ char * strsplit(char *s, const char *delim)
 
 /* Split string into tokens that are seperated by the full 
    delim string */
-char * strsplit_r(char *s, const char *delim, char **save_ptr)
+char * strsplit_r(char *s, const char *delims, char **save_ptr)
 {
-    char *end, *loc;
-
     if (s == NULL)
         s = *save_ptr;
 
-    if (*s == '\0')
-    {
+    if (*s == '\0') {
         *save_ptr = s;
         return NULL;
     }
 
-    // I want to use strstr here i think
-    loc = strstr(s, delim);
+    char *my_delims = malloc(strlen(delims) + 1);
+    if (!my_delims) {
+        return NULL;
+    }
+    
+    strcpy(my_delims, delims);
+    char **tokens;
+    tokens = split_tokens(my_delims, ",");
+
+    char *loc = NULL;
+    char *newloc;
+    char *delim;
+    int i = 0;
+    while (tokens[i]) {
+        newloc = strstr(s, tokens[i]);
+        if (newloc == NULL) {
+            i++;
+            continue;
+        }
+        if (loc == NULL) {
+            loc = newloc;
+            delim = tokens[i];
+        } else if (newloc < loc) {
+            loc = newloc;
+            delim = tokens[i];
+        }
+        i++;
+    }
+
     if (!(loc == NULL))
     {
         // Terminate the token, and push forward the save_ptr past the delim
