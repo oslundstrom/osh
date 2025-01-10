@@ -17,6 +17,7 @@ To compile the project, clone the repo
 
 ```
 git clone <url>
+cd osh
 ```
 
 Change directory to the repo and run `make`.
