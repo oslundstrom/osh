@@ -2,6 +2,8 @@
 
 This is the O(h)Sh(it!) shell, a simple shell that can run commands and has three builtin commands.
 
+![CI]
+
 ## Getting started
 
 Prerequisites for compiling the project is:
