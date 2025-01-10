@@ -15,8 +15,8 @@ void test_split_to_cmds(void) {
 
     tokens = split_to_cmds(str);
 
-    TEST_ASSERT_EQUAL_STRING(tokens[0], "sleep 2");
-    TEST_ASSERT_EQUAL_STRING(tokens[1], "echo hej");
+    TEST_ASSERT_EQUAL_STRING("sleep 2 ", tokens[0]);
+    TEST_ASSERT_EQUAL_STRING(" echo hej", tokens[1]);
 }
 
 void test_strsplit(void) {
@@ -72,5 +72,6 @@ int main(void) {
     RUN_TEST(test_strsplit);
     RUN_TEST(test_strsplit_multi);
     RUN_TEST(test_split_tokens);
+    RUN_TEST(test_split_to_cmds);
     return UNITY_END();
 }

@@ -17,21 +17,56 @@ int main(int argc, char **argv)
 }
 #endif
 
+void free_arr(char **arr)
+{
+    if (!arr)
+        return;
+        
+    for (int i = 0; arr[i] != NULL; i++)
+        free(arr[i]);
+    free(arr);
+}
+
 int loop(void)
 {
     char *line;
+    char **commands;
     char **args;
-    int status;
+    int status = 1;
+    int i;
 
     do {
-        printf("# ");
-        line = read_line();
-        args = split_to_args(line);
-        status = osh_execute(args);
+        printf("(%i)$ ", status);
         
+        // Get input
+        line = read_line();
+        if (!line)
+            return EXIT_SUCCESS;
+        
+        // Split into separate commands (e.g., by semicolons)
+        commands = split_to_cmds(line);
+        if (!commands) {
+            free(line);
+            return EXIT_FAILURE;
+        }
+
+        // Execute each command in the line
+        for (i = 0; commands[i] != NULL && status; i++) {
+            args = split_to_args(commands[i]);
+            if (!args)
+                continue;
+                
+            status = osh_execute(args); // TODO: handle intermediate status
+            free(args);
+        }
+        
+        // Cleanup
         free(line);
-        free(args);
+        free(commands);
+
     } while (status);
+
+    return EXIT_SUCCESS;
 }
 
 char *read_line(void)
@@ -114,13 +149,31 @@ char **split_to_cmds(char *line)
 {
     int bufsize = CMD_BUFSIZE, position = 0;
     char **cmds = malloc(bufsize * sizeof(char *));
-    char *cmd;
+    char *token;
     
     if (!cmds) {
         fprintf(stderr, "osh: allocation error\n");
     }
     
-
+    char *delims = CMD_DELIM;
+    token = strsplit(line, delims);
+    while (token != NULL) {
+        cmds[position] = token;
+        position++;
+        
+        if (position >= bufsize) {
+            bufsize += TOK_BUFSIZE;
+            cmds = realloc(cmds, bufsize * sizeof(char*));
+            if (!cmds) {
+                fprintf(stderr, "osh: allocation error\n");
+                exit(EXIT_FAILIURE);
+            }
+        }
+        
+        token = strsplit(NULL, delims); // By having NULL as first arg, we continue from the end of last token
+    }
+    cmds[position] = NULL; // Sentinel termination value of the pointer array
+    return cmds;
 }
 
 char * strsplit(char *s, const char *delim)
@@ -180,6 +233,10 @@ char * strsplit_r(char *s, const char *delims, char **save_ptr)
 
     // Delimiter was not found, the whole string is returned
     *save_ptr = s + strlen(s);
+    
+    free(tokens);
+    free(my_delims);
+    
     return s;
 }
 
