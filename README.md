@@ -4,6 +4,15 @@ This is the O(h)Sh(it!) shell, a simple shell that can run commands and has thre
 
 [![Status](https://github.com/oslundstrom/osh/actions/workflows/ci.yml/badge.svg)](https://github.com/oslundstrom/osh/actions/workflows/ci.yml)
 
+The shell is capable of recieving multiple semi-colon seperated commands on one line:
+
+```
+bash-5.2$ ./osh
+$ sleep 4 ; echo hi
+hi
+$ 
+```
+
 ## Getting started
 
 Prerequisites for compiling the project is:
