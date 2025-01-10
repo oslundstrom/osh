@@ -31,4 +31,4 @@ The tests are run by triggering the `check` make-target:
 make check
 ```
 
-The tests uses the Unity framework, and when running the make-command the first time, the unity repo should be cloned into a directory called `unity`.
+The tests uses the Unity framework, and when running the make-command the first time, the unity repo will automatically be cloned into a directory called `unity`.
