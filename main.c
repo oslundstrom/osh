@@ -36,7 +36,7 @@ int loop(void)
     int i;
 
     do {
-        printf("(%i)$ ", status);
+        printf("$ ");
         
         // Get input
         line = read_line();
@@ -302,7 +302,7 @@ int osh_cd(char **args)
 int osh_help(char **args)
 {
     int i;
-    printf("A simple shell called OSH(it!)\n");
+    printf("A simple shell called O(h)Sh(it!)\n");
     printf("The folowing builtin commands are availible\n");
     for (i = 0; i < osh_num_builtins(); i++) {
         printf("  %s\n", builtin_str[i]);
