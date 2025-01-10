@@ -25,10 +25,10 @@ Start the shell by running the binary, `./osh`.
 
 ## Testing
 
-The tests are run by triggering the `test` make-target:
+The tests are run by triggering the `check` make-target:
 
 ```
-make test
+make check
 ```
 
 The tests uses the Unity framework, and when running the make-command the first time, the unity repo should be cloned into a directory called `unity`.
